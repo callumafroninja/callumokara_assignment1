@@ -25,11 +25,22 @@ void ErrorMessage(const char *msg){
 	
 	
 	
+	
+}
+
+void play_game(int sock_fd){
+	char buffer[256];
+	int n=0;
+	bzero(buffer,256);
+	n=read(sock_fd,buffer,255);
+	
+	
 }
 int main(int argc,char *argv[]){
 	create_game();
     int sock_fd=0, port=0,n=0;
     char buffer[256];
+	char buffer2[256];
     struct sockaddr_in serv_addr;
     struct hostent *server;
  
@@ -60,21 +71,34 @@ int main(int argc,char *argv[]){
     printf("PLEASE ENTER YOUR USERNAME-- -> \n");
     bzero(buffer,256);
     fgets(buffer,256,stdin);
-    n=write(sock_fd,buffer,strlen(buffer));
- 
-	printf("PLEASE ENTER YOUR PASSWORD-- ->  \n");
-    bzero(buffer,256);
-    fgets(buffer,256,stdin);
-    n=write(sock_fd,buffer,strlen(buffer));
+	/*printf("PLEASE ENTER YOUR PASSWORD-- ->  \n");
+	bzero(buffer2,256);
+    fgets(buffer2,256,stdin);*/
+    
+	n=write(sock_fd,buffer,strlen(buffer));
+	//n=write(sock_fd,buffer,strlen(buffer2));
 	
+	/*printf("PLEASE ENTER YOUR PASSWORD-- ->  \n");
+    bzero(buffer2,256);
+    fgets(buffer2,256,stdin);
+	n=write(sock_fd,buffer,strlen(buffer2));*/
+	 
     if(n<0)
         ErrorMessage("Error writing in socket");
     bzero(buffer,256);
     n=read(sock_fd,buffer,255);
- 
+	printf("%s\n",buffer);
+	n=read(sock_fd,buffer,255);
+	printf("%s\n",buffer);
+	bzero(buffer,256);
+    fgets(buffer,256,stdin);
     if(n<0)
         ErrorMessage("Error reading socket");
-    printf("%s\n",buffer);
+    
+	
+	play_game(sock_fd);
+	
+    
 	
 	
 	
