@@ -28,14 +28,55 @@ void ErrorMessage(const char *msg){
 	
 }
 
-void play_game(int sock_fd){
+int play_game(int sock_fd){
 	char buffer[256];
 	int n=0;
+	int x=0;
 	bzero(buffer,256);
 	n=read(sock_fd,buffer,255);
 	
+	if(strcmp(buffer,"I")==0){
+		return 0;
+	}
+	printf("%s",buffer);
+	printf(" Please enter a number(1-3) -> ");
+	bzero(buffer,256);
+    fgets(buffer,256,stdin);
+	buffer[strcspn(buffer, "\r\n")] = 0;
+	while(x==0){
+		if(strcmp(buffer,"1")==0){
+			x=1;
+			printf("%s",buffer);
+			n=write(sock_fd,buffer,strlen(buffer));//sends option
+			//gameplay();
+		}
+		else if(strcmp(buffer,"2")==0){
+			x=1;
+			n=write(sock_fd,buffer,strlen(buffer));//sends option
+		}
+		else if(strcmp(buffer,"3")==0){
+			x=1;
+			n=write(sock_fd,buffer,strlen(buffer));//sends option
+		}
+		else{
+			printf(" Please enter a number BETWEEN 1-3 ->");
+			bzero(buffer,256);
+			fgets(buffer,256,stdin);
+			buffer[strcspn(buffer, "\r\n")] = 0;
+		}
+	}
+	if(n<0){ErrorMessage("Error writing in socket");}
 	
+	
+	return 1;
 }
+
+int gameplay(){
+	
+	return 1;
+}
+
+
 int main(int argc,char *argv[]){
 	create_game();
     int sock_fd=0, port=0,n=0;
@@ -68,33 +109,29 @@ int main(int argc,char *argv[]){
     if (connect(sock_fd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
         ErrorMessage("Error in connection");
  
-    printf("PLEASE ENTER YOUR USERNAME-- -> \n");
+    printf("PLEASE ENTER YOUR USERNAME---> ");
     bzero(buffer,256);
     fgets(buffer,256,stdin);
-	/*printf("PLEASE ENTER YOUR PASSWORD-- ->  \n");
-	bzero(buffer2,256);
-    fgets(buffer2,256,stdin);*/
-    
-	n=write(sock_fd,buffer,strlen(buffer));
-	//n=write(sock_fd,buffer,strlen(buffer2));
+	buffer[strcspn(buffer, "\r\n")] = 0;
+	n=write(sock_fd,buffer,strlen(buffer));//sends a username
 	
-	/*printf("PLEASE ENTER YOUR PASSWORD-- ->  \n");
-    bzero(buffer2,256);
-    fgets(buffer2,256,stdin);
-	n=write(sock_fd,buffer,strlen(buffer2));*/
 	 
     if(n<0)
         ErrorMessage("Error writing in socket");
     bzero(buffer,256);
     n=read(sock_fd,buffer,255);
-	printf("%s\n",buffer);
-	n=read(sock_fd,buffer,255);
-	printf("%s\n",buffer);
+	if(n<0)
+        ErrorMessage("Error reading socket");
+	printf("%s>",buffer);
+	
 	bzero(buffer,256);
     fgets(buffer,256,stdin);
-    if(n<0)
-        ErrorMessage("Error reading socket");
-    
+	buffer[strcspn(buffer, "\r\n")] = 0;
+	
+	n=write(sock_fd,buffer,strlen(buffer));//sends a password
+	
+	if(n<0)
+        ErrorMessage("Error writing in socket");
 	
 	play_game(sock_fd);
 	
