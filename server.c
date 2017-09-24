@@ -315,6 +315,76 @@ char* tokenise(char* array1, int array_length){
    }//it fucking works
 	
 }*/
+int gameplay(char *word, char *word_2, int socket){
+	int n=0;
+	int tries = 20;
+	int safety = 0;
+	char buffer[1000];
+	int placeholder[30];
+	int increment=0; 
+	int placeholder2[30];
+	int increment2=0;
+	char *ret;
+	printf(" char first word: %c, second word %s \n",word[0],word_2);
+	n=write(socket,"Words: _______ _______ \n",40);
+	
+	//new set
+	char *first_word;
+	/*for(int v=0; v<strlen(word); v++){
+		first_word[v] = word[v];
+	}*/
+	
+	//end new set
+	//ret = strstr(word, "z");
+	//printf("The substring is: %s\n", ret);
+	int r = 0; //r is the placeholder to put points etc...
+	int q=0;
+	while(tries!=0){
+		bzero(buffer,256);
+		n=read(socket,buffer,255);//reads letter from client
+		
+		//printf("letter returned %s.%s \n", buffer, &word[0]);
+		//first word
+			if(strstr(word, buffer)!=0){
+				
+				safety=1;
+				//placeholder[increment]=r;
+				increment++;
+				printf("first word has a match!\n");
+				
+				if(strstr(word_2, buffer)!=0){
+				
+				printf("Second word has a match!\n");
+				increment2++;
+				}
+				
+			}
+			else{
+				if(strstr(word_2, buffer)!=0){
+				safety=1;
+				printf("Second word has a match!\n");
+				increment2++;
+				}
+				else{
+				safety =0;	
+				}
+				
+			}
+		//second word
+			
+		
+		if(safety==0){
+			tries--;
+			n=write(socket,"letter not found \n",40);
+			
+		}
+		else{
+			safety = 0;
+			n=write(socket,"wrong words \n",40);
+		}
+		
+		}
+}
 
 int playgame(int socket){
 	//variables 
@@ -323,6 +393,8 @@ int playgame(int socket){
 	char *p;
     char *array[string_length];
 	time_t t;
+	char test[20];
+	char test2[20];
 	//opens file
 	FILE *file;
     char buffa[1000];
@@ -356,12 +428,16 @@ int playgame(int socket){
 	n = rand() % x;
 	if(n%2==0){
 		printf("chosen words are %s and %s", array[n], array[n+1]);
+		strcpy(test,array[n]);
+		strcpy(test2,array[n+1]);
 	}
 	else{
 		printf("chosen odd are %s and %s", array[n-1], array[n]);
+		strcpy(test,array[n-1]);
+		strcpy(test2,array[n]);
 	}
-	
-	
+	gameplay(test, test2, socket);
+	//printf("does it copy? %c",test[0]);
 	return 0;
 	
 }

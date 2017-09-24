@@ -27,7 +27,30 @@ void ErrorMessage(const char *msg){
 	
 	
 }
-
+int gameplay(int socket){
+	char buffer[256];
+	int n=0;
+	int x=20;
+	bzero(buffer,256);
+	n=read(socket,buffer,255);
+	printf("%s",buffer);
+	printf("you have %i guesses left",x);
+	while(x!=0){
+		printf("\n Pick a letter: ");
+		bzero(buffer,256);
+		fgets(buffer,256,stdin);
+		buffer[strcspn(buffer, "\r\n")] = 0;
+		n=write(socket,buffer,strlen(buffer));//sends letter
+		
+		bzero(buffer,256);
+		n=read(socket,buffer,255);//reads reply
+		printf("%s",buffer);
+		if(strcmp(buffer,"win")==0 || strcmp(buffer,"lose")==0){
+			x=0;
+		}
+	}
+	return 1;
+}
 int play_game(int sock_fd){
 	char buffer[256];
 	int n=0;
@@ -46,9 +69,8 @@ int play_game(int sock_fd){
 	while(x==0){
 		if(strcmp(buffer,"1")==0){
 			x=1;
-			printf("%s",buffer);
 			n=write(sock_fd,buffer,strlen(buffer));//sends option
-			//gameplay();
+			gameplay(sock_fd);
 		}
 		else if(strcmp(buffer,"2")==0){
 			x=1;
@@ -71,10 +93,7 @@ int play_game(int sock_fd){
 	return 1;
 }
 
-int gameplay(){
-	
-	return 1;
-}
+
 
 
 int main(int argc,char *argv[]){
