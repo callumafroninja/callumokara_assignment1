@@ -316,16 +316,17 @@ char* tokenise(char* array1, int array_length){
 	
 }*/
 int gameplay(char *word, char *word_2, int socket){
-	int n=0;
+	int n=0, word_length_1 = strlen(word), word_length_2 = strlen(word_2);
 	int tries = 20;
 	int safety = 0;
-	char buffer[1000];
-	int placeholder[30];
+	char buffer[1000], *p;
+	char sendwords[1000];
+	char *placeholder[1000];
 	int increment=0; 
-	int placeholder2[30];
+	char *placeholder2[1000];
 	int increment2=0;
 	char *ret;
-	printf(" char first word: %c, second word %s \n",word[0],word_2);
+	printf(" length first word: %i, second word %i \n",strlen(word),strlen(word_2));
 	n=write(socket,"Words: _______ _______ \n",40);
 	
 	//new set
@@ -341,29 +342,61 @@ int gameplay(char *word, char *word_2, int socket){
 	int q=0;
 	while(tries!=0){
 		bzero(buffer,256);
+		printf("tries: %i\n", tries);
 		n=read(socket,buffer,255);//reads letter from client
-		
+		printf("point a: %s\n", buffer);
 		//printf("letter returned %s.%s \n", buffer, &word[0]);
 		//first word
 			if(strstr(word, buffer)!=0){
+				p=strtok(word, buffer);
+				while (p != NULL)
+					{
+						placeholder[increment]=malloc(strlen(p) + 1);
+						strcpy(placeholder[increment],p);
+						p = strtok (NULL, buffer);
+					
+							increment++;
+						
+					}
 				
 				safety=1;
-				//placeholder[increment]=r;
-				increment++;
-				printf("first word has a match!\n");
 				
-				if(strstr(word_2, buffer)!=0){
+				printf("first word has a match!\n tokenised to: %s \n", placeholder[0]);
 				
-				printf("Second word has a match!\n");
-				increment2++;
-				}
+					if(strstr(word_2, buffer)!=0){
+					
+						p=strtok(word, buffer);
+						while (p != NULL)
+							{
+								placeholder2[increment2]=malloc(strlen(p) + 1);
+								strcpy(placeholder2[increment2],p);
+								p = strtok (NULL, buffer);
+								
+									increment2++;
+								
+							}
+					printf("Second word has a match!\n tokenised to: %s \n", placeholder2[0]);
+					
+					
+					}
 				
 			}
 			else{
 				if(strstr(word_2, buffer)!=0){
 				safety=1;
-				printf("Second word has a match!\n");
-				increment2++;
+				p=strtok(word, buffer);
+						while (p != NULL)
+							{
+								placeholder2[increment2]=malloc(strlen(p) + 1);
+								strcpy(placeholder2[increment2],p);
+								p = strtok (NULL, buffer);
+								
+								increment2++;
+								
+							}
+					printf("Second word has a match!\n tokenised to: %s \n", placeholder2[0]);
+					
+				
 				}
 				else{
 				safety =0;	
@@ -375,15 +408,24 @@ int gameplay(char *word, char *word_2, int socket){
 		
 		if(safety==0){
 			tries--;
-			n=write(socket,"letter not found \n",40);
+			if(tries==0){
+				n=write(socket,"lose",40);
+			}
+			n=write(socket,"wrong words",40);
 			
 		}
 		else{
 			safety = 0;
-			n=write(socket,"wrong words \n",40);
+			stpcpy(sendwords,"letter is correct!");
+			sendwords[strcspn(sendwords, "\r\n")] = 0;
+			n=write(socket,sendwords,40);
+		}
+		if(increment==word_length_1 && increment2==word_length_2){
+			printf("you WIN!!!!");
+		}
+		printf("increment %i, increment2 %i and actual length w1: %i", increment, increment2, word_length_1);
 		}
 		
-		}
 }
 
 int playgame(int socket){

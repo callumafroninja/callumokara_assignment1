@@ -29,22 +29,62 @@ void ErrorMessage(const char *msg){
 }
 int gameplay(int socket){
 	char buffer[256];
+	char current_letter[256], *correct[256], *incorrect[256];
 	int n=0;
 	int x=20;
+	int cor = 0, incor =0;
+	
 	bzero(buffer,256);
 	n=read(socket,buffer,255);
 	printf("%s",buffer);
 	printf("you have %i guesses left",x);
 	while(x!=0){
-		printf("\n Pick a letter: ");
+		printf(" \nPick a letter: ");
 		bzero(buffer,256);
 		fgets(buffer,256,stdin);
 		buffer[strcspn(buffer, "\r\n")] = 0;
 		n=write(socket,buffer,strlen(buffer));//sends letter
+		stpcpy(current_letter, buffer);
+	/*	bzero(buffer,256);
+		printf(" does it get this far?");
+		n=read(socket,buffer,255);//reads reply -word1
+		printf("word one so far: %s",buffer);
+		
+		bzero(buffer,256);
+		n=read(socket,buffer,255);//reads reply-word2
+		printf("words 2 so far: %s",buffer);*/
+		
 		
 		bzero(buffer,256);
 		n=read(socket,buffer,255);//reads reply
-		printf("%s",buffer);
+		printf("\n %s \n",buffer);
+		if(strcmp(buffer,"letter is correct!")==0){
+			correct[cor]=malloc(strlen(current_letter) + 1);
+			stpcpy(correct[cor], current_letter);
+			
+			cor++;
+			
+		}
+		else{
+			incorrect[incor]=malloc(strlen(current_letter) + 1);
+			stpcpy(incorrect[incor], current_letter);
+			
+			incor++;
+			
+		}
+		if(cor>0){
+			printf("correct letters: ");
+			for(int r=0; r<cor;r++){
+				printf("%s ", correct[r]);
+			}
+			
+		}
+		if(incor>0){
+			printf("incorrect letters: ");
+			for(int x=0; x<incor;x++){
+				printf("%s ", incorrect[x]);
+			}
+		}
 		if(strcmp(buffer,"win")==0 || strcmp(buffer,"lose")==0){
 			x=0;
 		}
