@@ -45,50 +45,30 @@ int gameplay(int socket){
 		buffer[strcspn(buffer, "\r\n")] = 0;
 		n=write(socket,buffer,strlen(buffer));//sends letter
 		stpcpy(current_letter, buffer);
-	/*	bzero(buffer,256);
-		printf(" does it get this far?");
-		n=read(socket,buffer,255);//reads reply -word1
-		printf("word one so far: %s",buffer);
-		
-		bzero(buffer,256);
-		n=read(socket,buffer,255);//reads reply-word2
-		printf("words 2 so far: %s",buffer);*/
+	
 		
 		
 		bzero(buffer,256);
 		n=read(socket,buffer,255);//reads reply
-		printf("\n %s \n",buffer);
-		if(strcmp(buffer,"letter is correct!")==0){
-			correct[cor]=malloc(strlen(current_letter) + 1);
-			stpcpy(correct[cor], current_letter);
-			
-			cor++;
-			
-		}
-		else{
-			incorrect[incor]=malloc(strlen(current_letter) + 1);
-			stpcpy(incorrect[incor], current_letter);
-			
-			incor++;
-			
-		}
-		if(cor>0){
-			printf("correct letters: ");
-			for(int r=0; r<cor;r++){
-				printf("%s ", correct[r]);
-			}
-			
-		}
-		if(incor>0){
-			printf("incorrect letters: ");
-			for(int x=0; x<incor;x++){
-				printf("%s ", incorrect[x]);
-			}
-		}
+		printf("%s \n",buffer);
+		
+		
+		bzero(buffer,256);
+		n=read(socket,buffer,255);//reads reply
+		printf("%s \n",buffer);
+		
+		
+		
 		if(strcmp(buffer,"win")==0 || strcmp(buffer,"lose")==0){
 			x=0;
 		}
+		bzero(buffer,256);
+		n=read(socket,buffer,255);//reads reply
+		printf("incorrect letters so far: %s \n",buffer);
+		
 	}
+	//going back to main menu
+
 	return 1;
 }
 int play_game(int sock_fd){
@@ -111,14 +91,17 @@ int play_game(int sock_fd){
 			x=1;
 			n=write(sock_fd,buffer,strlen(buffer));//sends option
 			gameplay(sock_fd);
+			return 1;
 		}
 		else if(strcmp(buffer,"2")==0){
 			x=1;
 			n=write(sock_fd,buffer,strlen(buffer));//sends option
+			return 1;
 		}
 		else if(strcmp(buffer,"3")==0){
 			x=1;
 			n=write(sock_fd,buffer,strlen(buffer));//sends option
+			return 3;
 		}
 		else{
 			printf(" Please enter a number BETWEEN 1-3 ->");
@@ -192,7 +175,7 @@ int main(int argc,char *argv[]){
 	if(n<0)
         ErrorMessage("Error writing in socket");
 	
-	play_game(sock_fd);
+	while(play_game(sock_fd) !=3);
 	
     
 	

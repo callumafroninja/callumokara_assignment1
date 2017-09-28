@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <time.h>
 
 // Callum and Okara n9170324 QUT 
 struct list {
@@ -320,7 +321,7 @@ int gameplay(char *word, char *word_2, int socket){
 	int tries = 20;
 	int safety = 0;
 	char buffer[1000], *p;
-	char sendwords[1000];
+	char *sendwords[1000];
 	char *placeholder[1000];
 	int increment=0; 
 	char *placeholder2[1000];
@@ -331,99 +332,148 @@ int gameplay(char *word, char *word_2, int socket){
 	
 	//new set
 	char *first_word;
+	
 	/*for(int v=0; v<strlen(word); v++){
 		first_word[v] = word[v];
 	}*/
+	//copying word into new array as chars
+	int strlength = strlen(word);
+	char charArray[strlength];
+	
+	for(int i=0; i<strlength; i++){
+		charArray[i] = (char) word[i];
+		
+		
+	}
+	//copying word2 into new array as chars
+	int strlength2 = strlen(word_2);
+	char charArray2[strlength2];
+	printf(" %i  array length", strlength2);
+	for(int i=0; i<strlength2; i++){
+		charArray2[i] = (char) word_2[i];
+		
+		
+	}
+		
 	
 	//end new set
 	//ret = strstr(word, "z");
 	//printf("The substring is: %s\n", ret);
 	int r = 0; //r is the placeholder to put points etc...
 	int q=0;
+	char word_one[strlength];
+	
+	for(int i=0; i<strlength; i++){
+		word_one[i]='_';
+	}
+	
+	char word_two[strlength2];
+	
+	for(int i=0; i<strlength2; i++){
+		word_two[i]='_';
+	}
+	int wordwin1=1;
+	int wordwin2=1;
 	while(tries!=0){
+		
 		bzero(buffer,256);
 		printf("tries: %i\n", tries);
-		n=read(socket,buffer,255);//reads letter from client
-		printf("point a: %s\n", buffer);
-		//printf("letter returned %s.%s \n", buffer, &word[0]);
-		//first word
-			if(strstr(word, buffer)!=0){
-				p=strtok(word, buffer);
-				while (p != NULL)
-					{
-						placeholder[increment]=malloc(strlen(p) + 1);
-						strcpy(placeholder[increment],p);
-						p = strtok (NULL, buffer);
-					
-							increment++;
-						
-					}
-				
-				safety=1;
-				
-				printf("first word has a match!\n tokenised to: %s \n", placeholder[0]);
-				
-					if(strstr(word_2, buffer)!=0){
-					
-						p=strtok(word, buffer);
-						while (p != NULL)
-							{
-								placeholder2[increment2]=malloc(strlen(p) + 1);
-								strcpy(placeholder2[increment2],p);
-								p = strtok (NULL, buffer);
-								
-									increment2++;
-								
-							}
-					printf("Second word has a match!\n tokenised to: %s \n", placeholder2[0]);
-					
-					
-					}
-				
-			}
-			else{
-				if(strstr(word_2, buffer)!=0){
-				safety=1;
-				p=strtok(word, buffer);
-						while (p != NULL)
-							{
-								placeholder2[increment2]=malloc(strlen(p) + 1);
-								strcpy(placeholder2[increment2],p);
-								p = strtok (NULL, buffer);
-								
-								increment2++;
-								
-							}
-					printf("Second word has a match!\n tokenised to: %s \n", placeholder2[0]);
-					
-				
-				}
-				else{
-				safety =0;	
-				}
-				
-			}
-		//second word
-			
 		
-		if(safety==0){
-			tries--;
-			if(tries==0){
-				n=write(socket,"lose",40);
+		n=read(socket,buffer,255);//reads letter from client
+		wordwin1=1;
+		wordwin2=1;
+		
+		for(int i=0; i<strlength; i++){
+			if(word_one[i]=='_'){
+				wordwin1=0;
+				if(charArray[i]==buffer[0]){
+					word_one[i]=charArray[i];
+					safety=1;
+				}
 			}
-			n=write(socket,"wrong words",40);
+		}
+		
+		for(int i=0; i<strlength2; i++){
+			if(word_two[i]=='_'){
+				wordwin2=0;
+				if(charArray2[i]==buffer[0]){
+					word_two[i]=charArray2[i];
+					safety=1;
+				}
+			}
+		}
+		//checks to see if there is a winner!
+		wordwin1=1;
+		wordwin2=1;
+		for(int i=0; i<strlength; i++){
+			if(word_one[i]=='_'){
+				wordwin1=0;
+			}
+		}
+		for(int i=0; i<strlength2; i++){
+			if(word_two[i]=='_'){
+				wordwin2=0;
+			}
+		}
+		printf(" it works!! %s %s", word_one, word_two);
+		printf(" winner? %i %i", wordwin1, wordwin2);
+		if(wordwin1==1 && wordwin2==1){
+			printf("\n you a winner");
+			n=write(socket,"Well done.....",60);
+			sleep(1);
+			n=write(socket,"win",60);
+			sleep(1);
+			n=write(socket,"win",60);
 			
+			//sending back to main menu
+			
+			
+			tries =0;//to conclude the while loop
 		}
 		else{
-			safety = 0;
-			stpcpy(sendwords,"letter is correct!");
-			sendwords[strcspn(sendwords, "\r\n")] = 0;
-			n=write(socket,sendwords,40);
+		
+			
+		
+			if(safety==0){
+				tries--;
+				printf("does safety go here?");
+				sendwords[r] = buffer;
+				r++;
+				printf("is it bad here: %s", sendwords);
+				if(tries==0){
+					n=write(socket,"lose",40);
+					sleep(1);
+					n=write(socket,"lose",40);
+					sleep(1);
+					n=write(socket,"lose",40);
+					break;
+				}
+				n=write(socket,word_one,60);
+				sleep(1);
+				n=write(socket,word_two,60);
+				sleep(1);
+				n=write(socket,sendwords,60);
+			}
+			else{
+				safety = 0;
+				n=write(socket,word_one,60);
+				sleep(1);
+				n=write(socket,word_two,60);
+				sleep(1);
+				n=write(socket,sendwords,60);
+				
+				//sends both words as they are guessed
+				
+			}
 		}
-		if(increment==word_length_1 && increment2==word_length_2){
+		
+		
+		/*if(increment==word_length_1 && increment2==word_length_2){
 			printf("you WIN!!!!");
-		}
-		printf("increment %i, increment2 %i and actual length w1: %i", increment, increment2, word_length_1);
+		}*/
+		//n=write(socket,word_one,60);
+		
+		//printf("increment %i, increment2 %i and actual length w1: %i", increment, increment2, word_length_1);
 		}
 		
 }
@@ -624,11 +674,13 @@ int main(int argc,char *argv[]){
 		
 		
 	if(validate(username, password)==1){
+		while(option !=3){//keeps program running until user has decided to exit
+		sleep(1);
 		n=write(new_sock_fd,"Options\n 1. Play Game \n 2.Leaderboard \n 3. Exit",70);
 		bzero(buffer,256);
 		n=read(new_sock_fd,buffer,255);
 		option = options(buffer,new_sock_fd);
-		
+		}
 	}
 	else{
 		n=write(new_sock_fd,"I",70);
