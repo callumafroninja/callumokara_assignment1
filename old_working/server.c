@@ -319,7 +319,7 @@ char* tokenise(char* array1, int array_length){
 }*/
 int gameplay(char *word, char *word_2, int socket){
 	int n=0, word_length_1 = strlen(word), word_length_2 = strlen(word_2);
-	int tries = word_length_1 + word_length_2 + 10; //Number of guesses = min{length of word 1 + length of word 2 + 10, 26}
+	int tries = 20;
 	int safety = 0;
 	char buffer[1000], *p;
 	char *sendwords[1000];
@@ -332,9 +332,11 @@ int gameplay(char *word, char *word_2, int socket){
 	n=write(socket,"Words: _______ _______ \n",40);
 	
 	//new set
-	char letters_stored[tries];
+	char *first_word;
 	
-	
+	/*for(int v=0; v<strlen(word); v++){
+		first_word[v] = word[v];
+	}*/
 	//copying word into new array as chars
 	int strlength = strlen(word);
 	char charArray[strlength];
@@ -373,7 +375,6 @@ int gameplay(char *word, char *word_2, int socket){
 	}
 	int wordwin1=1;
 	int wordwin2=1;
-	int w=0; //placeholder for stored letters
 	while(tries!=0){
 		
 		bzero(buffer,256);
@@ -391,10 +392,6 @@ int gameplay(char *word, char *word_2, int socket){
 					safety=1;
 				}
 			}
-			else if(word_one[i]==buffer[0]){
-				safety=1;
-			}
-			
 		}
 		
 		for(int i=0; i<strlength2; i++){
@@ -405,14 +402,7 @@ int gameplay(char *word, char *word_2, int socket){
 					safety=1;
 				}
 			}
-			else if(word_two[i]==buffer[0]){
-				safety=1;
-			}
 		}
-		
-		letters_stored[w] = buffer[0];
-		w++;
-		printf("letters so far :%s \n", letters_stored);
 		//checks to see if there is a winner!
 		wordwin1=1;
 		wordwin2=1;
@@ -435,8 +425,6 @@ int gameplay(char *word, char *word_2, int socket){
 			n=write(socket,"win",60);
 			sleep(1);
 			n=write(socket,"win",60);
-			sleep(1);
-			n=write(socket,"win",60);
 			
 			//sending back to main menu
 			
@@ -452,10 +440,8 @@ int gameplay(char *word, char *word_2, int socket){
 				printf("does safety go here?");
 				sendwords[r] = buffer;
 				r++;
-				//printf("is it bad here: %s", sendwords);
+				printf("is it bad here: %s", sendwords);
 				if(tries==0){
-					n=write(socket,"lose",40);
-					sleep(1);
 					n=write(socket,"lose",40);
 					sleep(1);
 					n=write(socket,"lose",40);
@@ -467,19 +453,15 @@ int gameplay(char *word, char *word_2, int socket){
 				sleep(1);
 				n=write(socket,word_two,60);
 				sleep(1);
-				n=write(socket,&tries,60);
-				sleep(1);
-				n=write(socket,letters_stored,60);
-			} 
+				n=write(socket,sendwords,60);
+			}
 			else{
 				safety = 0;
 				n=write(socket,word_one,60);
 				sleep(1);
 				n=write(socket,word_two,60);
 				sleep(1);
-				n=write(socket,&tries,60);
-				sleep(1);
-				n=write(socket,letters_stored,60);
+				n=write(socket,sendwords,60);
 				
 				//sends both words as they are guessed
 				
@@ -632,14 +614,16 @@ int options(char *onetwothree, int socket_transfer){
 	return 4;
 }
 
-void *connection(void *);
-
 int main(int argc,char *argv[]){
-	/*--- Process client's requests ---*/
-	 int sock_fd=0,new_sock_fd=0,port=0,clilen=0,n=0,*new_sock,sock_fd2=0;
-    
-    struct sockaddr_in serv_addr,cli_addr;
 	
+	
+ 
+    int sock_fd=0,new_sock_fd=0,port=0,clilen=0,n=0,new_sock_fd2=0,sock_fd2=0;
+    char buffer[256];
+	char username[256];
+	char password[256];
+    struct sockaddr_in serv_addr,cli_addr;
+	int option;
 	
     if(argc<2){
         fprintf(stderr,"Error port is missing\n");
@@ -662,47 +646,10 @@ int main(int argc,char *argv[]){
         ErrorMessage("Error in connection");
 	}
 	
-	listen(sock_fd,5);
-	
-	
-	clilen=sizeof(cli_addr);
-
-	while(new_sock_fd=accept(sock_fd,(struct sockaddr *)&cli_addr,&clilen)){
-		printf("successful connection");
-		pthread_t child;
-		new_sock = malloc(1);
-        *new_sock = new_sock_fd;
-		if(pthread_create(&child, 0, connection, (void *) new_sock)<0){
-			printf("could not create thread");
-			return 1;
-		}
-		printf("handler assigned");
-		
-	}
-if (new_sock_fd < 0)
-    {
-        printf("accept failed");
-        return 1;
-    }
-    return 0;
-//pthread_create(&child, 0, connection(argc, argv), NULL);    /* start thread */
-//pthread_detach(child);           /* don't track it */
-
-
-	//connection(argc, argv);
- 
-   
-    return 0;
-}
-
-void *connection(void *new_sock_fd1){
-	
-		int new_sock_fd = *(int*)new_sock_fd1;
-		int n=0, option;
-		char buffer[256];
-		char username[256];
-		char password[256];
-		
+		listen(sock_fd,5);
+	 
+		clilen=sizeof(cli_addr);
+		new_sock_fd=accept(sock_fd,(struct sockaddr *)&cli_addr,&clilen);
 		if(new_sock_fd<0){
 			ErrorMessage("Error on accept");
 		}
@@ -737,11 +684,12 @@ void *connection(void *new_sock_fd1){
 		}
 	}
 	else{
-		sleep(1);
-		n=write(new_sock_fd,"Disconnected",70);
-		bzero(buffer,256);
+		n=write(new_sock_fd,"I",70);
 	}
 	
-	return 0;
+	
+    return 0;
 }
+
+
 

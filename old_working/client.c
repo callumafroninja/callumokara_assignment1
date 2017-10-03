@@ -37,7 +37,7 @@ int gameplay(int socket){
 	bzero(buffer,256);
 	n=read(socket,buffer,255);
 	printf("%s",buffer);
-	//printf("you have %i guesses left",x);
+	printf("you have %i guesses left",x);
 	while(x!=0){
 		printf(" \nPick a letter: ");
 		bzero(buffer,256);
@@ -64,11 +64,7 @@ int gameplay(int socket){
 		}
 		bzero(buffer,256);
 		n=read(socket,buffer,255);//reads reply
-		printf("gueeses left: %i \n",*buffer);
-		
-		bzero(buffer,256);
-		n=read(socket,buffer,255);//reads reply
-		printf("letters guessed: %s \n",buffer);
+		printf("incorrect letters so far: %s \n",buffer);
 		
 	}
 	//going back to main menu
@@ -82,9 +78,8 @@ int play_game(int sock_fd){
 	bzero(buffer,256);
 	n=read(sock_fd,buffer,255);
 	
-	if(strcmp(buffer,"Disconnected")==0){
-		printf("Incorrect details.....Disconnecting");
-		return 3;
+	if(strcmp(buffer,"I")==0){
+		return 0;
 	}
 	printf("%s",buffer);
 	printf(" Please enter a number(1-3) -> ");
