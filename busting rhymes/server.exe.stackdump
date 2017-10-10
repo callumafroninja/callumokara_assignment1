@@ -1,0 +1,7 @@
+Exception: STATUS_ACCESS_VIOLATION at eip=61137E21
+eax=00000001 ebx=00000001 ecx=00000000 edx=00000001 esi=00000000 edi=00000001
+ebp=FFEAC848 esp=FFEAC844 program=C:\cygwin\assignmnet2\busting rhymes\server.exe, pid 25116, thread unknown (0x4CD4)
+cs=0023 ds=002B es=002B fs=0053 gs=002B ss=002B
+Stack trace:
+Frame     Function  Args
+End of stack trace
