@@ -176,7 +176,10 @@ int main(int argc,char *argv[]){
    
     if (connect(sock_fd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
         ErrorMessage("Error in connection");
- 
+	printf("awaiting connection.........");
+	bzero(buffer,256);
+    n=read(sock_fd,buffer,255);
+	printf("%s \n", buffer);
     printf("PLEASE ENTER YOUR USERNAME---> ");
     bzero(buffer,256);
     fgets(buffer,256,stdin);

@@ -658,10 +658,11 @@ int options(char *onetwothree, int socket_transfer){
 }
 
 void *connection(void *);
+void *hold_up(void *);
 
 int main(int argc,char *argv[]){
 	/*--- Process client's requests ---*/
-	 int sock_fd=0,new_sock_fd=0,port=0,clilen=0,n=0,*new_sock,sock_fd2=0;
+	 int sock_fd=0,new_sock_fd=0,port=0,clilen=0,n=0,*new_sock,sock_fd2=0, *new_sock1;
     
     struct sockaddr_in serv_addr,cli_addr;
 	
@@ -691,12 +692,30 @@ int main(int argc,char *argv[]){
 	
 	
 	clilen=sizeof(cli_addr);
+	pthread_t child1;
+	new_sock1 = malloc(1);
+   *new_sock1 = 1;
+	if(filled>=10){
+			printf("waittttttt");
+			if(pthread_create(&child1, 0, hold_up, (void *) new_sock1)<0){
+			printf("could not create thread");
+			return 1;
+			}
+		}
 
 	while(new_sock_fd=accept(sock_fd,(struct sockaddr *)&cli_addr,&clilen)){
 		printf("successful connection");
+		n=write(new_sock_fd,"successful connection",90);
+		filled++;
 		pthread_t child;
 		new_sock = malloc(1);
         *new_sock = new_sock_fd;
+		/*
+			if filled>=10 then create a new thread to pause it whilst it is at that point
+		*/
+		printf("connected users: %i \n", filled);
+		
+		
 		if(pthread_create(&child, 0, connection, (void *) new_sock)<0){
 			printf("could not create thread");
 			return 1;
@@ -718,6 +737,15 @@ if (new_sock_fd < 0)
  
    
     return 0;
+}
+
+void *hold_up(void *new_sock_fd1){
+	while(filled>=10){
+		//waittttttttttttttt
+	}
+	pthread_exit(NULL);
+	return 0;
+	
 }
 
 void *connection(void *new_sock_fd1){
@@ -857,6 +885,9 @@ void *connection(void *new_sock_fd1){
 		sleep(1);
 		n=write(new_sock_fd,"Disconnected",70);
 		bzero(buffer,256);
+		/* terminate the thread */
+		filled--;
+		pthread_exit(NULL);
 	}
 	
 	return 0;
