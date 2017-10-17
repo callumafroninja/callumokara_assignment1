@@ -127,6 +127,7 @@ int play_game(int sock_fd){
 		else if(strcmp(buffer,"3")==0){
 			x=1;
 			n=write(sock_fd,buffer,strlen(buffer));//sends option
+			
 			return 3;
 		}
 		else{

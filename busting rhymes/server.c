@@ -692,20 +692,11 @@ int main(int argc,char *argv[]){
 	
 	
 	clilen=sizeof(cli_addr);
-	pthread_t child1;
-	new_sock1 = malloc(1);
-   *new_sock1 = 1;
-	if(filled>=10){
-			printf("waittttttt");
-			if(pthread_create(&child1, 0, hold_up, (void *) new_sock1)<0){
-			printf("could not create thread");
-			return 1;
-			}
-		}
+	
 
 	while(new_sock_fd=accept(sock_fd,(struct sockaddr *)&cli_addr,&clilen)){
 		printf("successful connection");
-		n=write(new_sock_fd,"successful connection",90);
+		
 		filled++;
 		pthread_t child;
 		new_sock = malloc(1);
@@ -713,6 +704,21 @@ int main(int argc,char *argv[]){
 		/*
 			if filled>=10 then create a new thread to pause it whilst it is at that point
 		*/
+		
+		pthread_t child1;
+		new_sock1 = malloc(1);
+	    *new_sock1 = 1;
+	    printf("checks if to que");
+		if(filled>=10){
+				printf("waittttttt");
+				if(pthread_create(&child1, 0, hold_up, (void *) new_sock)<0){
+				printf("could not create thread");
+				return 1;
+				}
+			}
+		else{
+		n=write(new_sock_fd,"successful connection",90);//may clash with other threads?
+		}
 		printf("connected users: %i \n", filled);
 		
 		
@@ -740,9 +746,11 @@ if (new_sock_fd < 0)
 }
 
 void *hold_up(void *new_sock_fd1){
+	int new_sock_fd = *(int*)new_sock_fd1;
 	while(filled>=10){
 		//waittttttttttttttt
 	}
+	write(new_sock_fd,"successful connection",90);
 	pthread_exit(NULL);
 	return 0;
 	
@@ -877,6 +885,9 @@ void *connection(void *new_sock_fd1){
 				}
 			}
 		}
+		else{
+			filled--;//minus the number of users 
+		}
 		
 		}
 		account_number++;
@@ -886,7 +897,7 @@ void *connection(void *new_sock_fd1){
 		n=write(new_sock_fd,"Disconnected",70);
 		bzero(buffer,256);
 		/* terminate the thread */
-		filled--;
+		
 		pthread_exit(NULL);
 	}
 	
