@@ -101,6 +101,27 @@ int play_game(int sock_fd){
 		else if(strcmp(buffer,"2")==0){
 			x=1;
 			n=write(sock_fd,buffer,strlen(buffer));//sends option
+			//takes the amount of reads it needs
+			bzero(buffer,256);
+			n=read(sock_fd,buffer,255);//reads reply
+			printf("amount of users: %i \n",*buffer);
+			x=*buffer;
+			for(int t=0; t<x; t++){
+				printf("============================= \n");
+				bzero(buffer,256);
+				n=read(sock_fd,buffer,255);//reads username
+				printf(" Username: %s \n", buffer);
+				
+				bzero(buffer,256);
+				n=read(sock_fd,buffer,255);//reads games won
+				printf(" Games Won: %i \n", *buffer);
+				
+				bzero(buffer,256);
+				n=read(sock_fd,buffer,255);//reads games played
+				printf(" Games played: %i \n", *buffer);
+				
+				printf("============================= \n");
+			}
 			return 1;
 		}
 		else if(strcmp(buffer,"3")==0){

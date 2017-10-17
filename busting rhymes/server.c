@@ -347,6 +347,9 @@ int gameplay(char *word, char *word_2, int socket){
 	n=write(socket,"Words: _______ _______ \n",40);
 	
 	//new set
+	if(tries>26){
+		tries = 26;
+	}
 	char letters_stored[tries];
 	
 	
@@ -825,12 +828,26 @@ void *connection(void *new_sock_fd1){
 				}
 				
 			}
-			
+			int count=0;
 			for(int x=1; x<10; x++){
 				printf("order: %s %i \n", rank[x].username, rank[x].games_won);
-				
+				if(rank[x].games_won>0){//checks to see games won and whether it should send
+					count++;
+				}
 			}
+			n=write(new_sock_fd,&count,60);//sends the amount of users being displayed
+			sleep(1);
 			
+			for(int x=1; x<10; x++){
+				if(rank[x].games_won>0){//checks to see games won and whether it should send
+					n=write(new_sock_fd,rank[x].username,60);
+					sleep(1);
+					n=write(new_sock_fd,&rank[x].games_won,60);
+					sleep(1);
+					n=write(new_sock_fd,&rank[x].games_played,60);
+					sleep(1);
+				}
+			}
 		}
 		
 		}
